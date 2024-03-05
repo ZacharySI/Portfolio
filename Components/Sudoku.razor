@@ -1,0 +1,249 @@
+@page "/sudoku"
+
+<PageTitle>Sudoku</PageTitle>
+
+<h1>Sudoku Game</h1>
+
+Example Project
+<br />
+<div style="text-align:center;">
+    @for (int i = 0; i < 9; i++)
+    {
+        for (int j = 0; j < 9; j++)
+        {
+            var _value = board[i, j];
+            int row = i; int col = j;
+            <input type="number" min="1" max="9" style="@GetStyle(i,j)" value="@_value" @onchange="(e) => ChangeBoard(Convert.ToInt32(e.Value.ToString()),row,col)" />
+        }
+        <br />
+    }
+
+    <br />
+    <button @onclick="CheckBoard">Submit</button>
+    <br />
+    <p>@IsValid</p>
+</div>
+
+@code{
+    [Parameter]
+    public int ValuesRemoved { get; set; } = 15;
+
+    private int[,] board = new int[9, 9];
+    private string IsValid = string.Empty;
+    private int N, SRN;
+
+    protected override void OnInitialized()
+    {
+        N = 9;
+        SRN = (int)Math.Sqrt(N);
+        GenerateValidBoard();
+    }
+
+    private void GenerateValidBoard()
+    {
+        FillDiagonal();
+
+        FillRemaining(0, SRN);
+
+        RemoveDigits();
+    }
+
+    private void FillDiagonal()
+    {
+        for (int i = 0; i < N; i = i + SRN)
+            FillBox(i, i);
+    }
+
+    private bool UnUsedInBox(int rowStart, int colStart, int num)
+    {
+        for (int i = 0; i < SRN; i++)
+            for (int j = 0; j < SRN; j++)
+                if (board[rowStart + i, colStart + j] == num)
+                    return false;
+        return true;
+    }
+
+    private void FillBox(int row, int col)
+    {
+        int num;
+        for (int i = 0; i < SRN; i++)
+        {
+            for (int j = 0; j < SRN; j++)
+            {
+                do
+                {
+                    num = GenerateRandom(N);
+                }
+                while (!UnUsedInBox(row, col, num));
+                board[row + i, col + j] = num;
+            }
+        }
+    }
+
+    private int GenerateRandom(int num)
+    {
+        Random rand = new Random();
+        return (int)Math.Floor((double)(rand.NextDouble() * num + 1));
+    }
+
+    private bool CheckIfSafe(int i, int j, int num)
+    {
+        return (UnUsedInRow(i, num) &&
+                UnUsedInCol(j, num) &&
+                UnUsedInBox(i - i % SRN, j - j % SRN, num));
+    }
+
+    private bool UnUsedInRow(int i, int num)
+    {
+        for (int j = 0; j < N; j++)
+            if (board[i, j] == num)
+                return false;
+        return true;
+    }
+
+    private bool UnUsedInCol(int j, int num)
+    {
+        for (int i = 0; i < N; i++)
+            if (board[i, j] == num)
+                return false;
+        return true;
+    }
+
+    private bool FillRemaining(int i, int j)
+    {
+        if (j >= N && i < N - 1)
+        {
+            i = i + 1;
+            j = 0;
+        }
+        if (i >= N && j >= N)
+            return true;
+
+        if (i < SRN)
+        {
+            if (j < SRN)
+                j = SRN;
+        }
+        else if (i < N - SRN)
+        {
+            if (j == (int)(i / SRN) * SRN)
+                j = j + SRN;
+        }
+        else
+        {
+            if (j == N - SRN)
+            {
+                i = i + 1;
+                j = 0;
+                if (i >= N)
+                    return true;
+            }
+        }
+
+        for (int num = 1; num <= N; num++)
+        {
+            if (CheckIfSafe(i, j, num))
+            {
+                board[i, j] = num;
+                if (FillRemaining(i, j + 1))
+                    return true;
+
+                board[i, j] = 0;
+            }
+        }
+        return false;
+    }
+
+    private void RemoveDigits()
+    {
+        int count = ValuesRemoved;
+        while (count != 0)
+        {
+            int cellId = GenerateRandom(N * N) - 1;
+
+            int i = (cellId / N);
+            int j = cellId % N;
+            if (j != 0)
+                j = j - 1;
+
+            if (board[i, j] != 0)
+            {
+                count--;
+                board[i, j] = 0;
+            }
+        }
+    }
+
+    private void CheckBoard()
+    {
+        //for (int i = 0; i < 9; i++)
+        //    for (int j = 0; j < 9; j++)
+        //    {
+        //        if (board[i,j] < 1 || board[i,j] > 9)
+        //        {
+        //            IsValid = "Only values between 1-9 accepted";
+        //            return;
+        //        }
+        //    }
+        // Check the rows and columns
+        HashSet<int> RowSet;
+        HashSet<int> ColSet;
+        for (int i = 0; i < 9; i++)
+        {
+            RowSet = new();
+            ColSet = new();
+            for (int j = 0; j < 9; j++)
+            {
+                if (!(RowSet.Add(board[i, j]) && ColSet.Add(board[j, i])))
+                {
+                    IsValid = $"Duplicate in row or column {i} and {j} : {board[i, j]} and {board[j, i]}";
+                    return;
+                }
+            }
+        }
+        // check the squares
+        HashSet<int> SquareSet;
+        for (int i = 1; i < 9; i += 3) // 1, 4, 7
+        {
+            for (int j = 1; j < 9; j += 3) // 1, 4, 7
+            {
+                SquareSet = new();
+                foreach (var sub in Enumerable.Range(-1, 1))
+                {
+                    if (!(SquareSet.Add(board[i + sub, j - 1]) && SquareSet.Add(board[i + sub, j]) && SquareSet.Add(board[i + sub, j + 1])))
+                    {
+                        IsValid = "Duplicate in Square";
+                        return;
+                    }
+                }
+            }
+        }
+        IsValid = "Board Is Correct";
+        return;
+    }
+
+    private void ChangeBoard(int number, int i, int j)
+    {
+        board[i, j] = number;
+        return;
+    }
+
+    private string GetStyle(int row, int column)
+    {
+        string border = "3px solid blue;";
+        string ReturnString = "outline:solid black;width:40px;";
+        if (board[row, column] == 0)
+            ReturnString += "color: red;"; // starts showing the limitation of this
+        if (row == 0 || row == 3 || row == 6)
+            ReturnString += $"border-top: {border}";
+        if (column == 0 || column == 3 || column == 6)
+            ReturnString += $"border-left: {border}";
+        if (column == 2 || column == 5 || column == 8)
+            ReturnString += $"border-right: {border}";
+        if (row == 2 || row == 5 || row == 8)
+            ReturnString += $"border-bottom: {border}";
+
+        return ReturnString;
+    }
+}
+
