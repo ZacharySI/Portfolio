@@ -1,0 +1,59 @@
+@page "/images"
+
+<PageTitle>Images</PageTitle>
+<div style="height:600px; position: relative; border: 2px solid black">
+    <div style="overflow-y: hidden">
+        @if (string.IsNullOrEmpty(_image))
+        {
+            <p>No Images were provided</p>
+        }
+        else
+        {
+            <div style="margin: 0; position: absolute; top: 50%; left: 50%; -ms-transform: translate(-50%,-50%); transform: translate(-50%,-50%);">
+                <img src="@_image" alt="An Image" style="height: 550px;" />
+            </div>
+        }
+        <br />
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public List<string> links { get; set; }
+  
+    private Queue<string> Image_Links { get; set; } = new();
+
+    private string _image = string.Empty;
+
+    private Timer _timer;
+
+    protected override void OnInitialized()
+    {
+        SetImageLink();
+        _timer = new Timer(HandleTimerCallback, null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
+    }
+
+    private void SetImageLink()
+    {
+        foreach (var link in links)
+            Image_Links.Enqueue(link);
+        GetImage();
+    }
+
+    private void GetImage()
+    {
+        _image = Image_Links.Dequeue();
+        Image_Links.Enqueue(_image); // re-enqueue items to have them loop
+    }
+
+    private void HandleTimerCallback(object state)
+    {
+        GetImage();
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        _timer.Dispose();
+    }
+}
