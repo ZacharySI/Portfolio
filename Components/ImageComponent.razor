@@ -21,7 +21,7 @@
     [Parameter]
     public List<string> links { get; set; }
   
-    private Queue<string> Image_Links { get; set; } = new();
+    private Queue<string> Image_Links { get; set; }
 
     private string _image = string.Empty;
 
@@ -29,15 +29,8 @@
 
     protected override void OnInitialized()
     {
-        SetImageLink();
+        Image_Links = new(links);
         _timer = new Timer(HandleTimerCallback, null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
-    }
-
-    private void SetImageLink()
-    {
-        foreach (var link in links)
-            Image_Links.Enqueue(link);
-        GetImage();
     }
 
     private void GetImage()
