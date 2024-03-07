@@ -264,7 +264,7 @@ Example Project
     private string GetStyle(int row, int column)
     {
         string border = "3px solid blue;";
-        string ReturnString = "outline:solid black;width:40px;height:40px;";
+        string ReturnString = "outline:solid black;width:40px;height:40px;text-align:right;";
         if (board[row, column] == 0)
             ReturnString += "color: red;"; // starts showing the limitation of this
         if (row == 0 || row == 3 || row == 6)
