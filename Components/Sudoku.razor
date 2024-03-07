@@ -23,12 +23,12 @@ Example Project
         {
             @if (@AnyLeftInBoard(num))
             {
-
-                <button style="outline: 2px solid; background-color: lightgray; margin: 10px; padding: 3px; color:black; display: inline;margin-right:5px;" @onclick="() => AssignToSquare(num)"> @num </button>
+    
+                <button style="margin-left:15px;" @onclick="() => AssignToSquare(num)"><h1 style="color:black; display: inline;margin-right:5px;"> @num </h1></button>
             }
             else
             {
-                <button style="outline: 2px solid; background-color: lightgray; margin: 10px; padding: 3px; color: gainsboro; display: inline; margin-right: 5px; " disabled> @num </button>
+                <button style="margin-left:15px;" disabled><h1 style="color: gainsboro; display: inline; margin-right: 5px;"> @num </h1></button>
             }
         }
     </div>
