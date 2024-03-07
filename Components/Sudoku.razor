@@ -13,23 +13,22 @@ Example Project
         {
             var _value = board[i, j];
             int row = i; int col = j;
-            <input type="number" min="1" max="9" style="@GetStyle(i,j)" value="@_value" @onchange="(e) => ChangeBoard(int.TryParse(e.Value.ToString(), out int value) ? value : 0, row, col)" />
+            <button style="@GetStyle(i,j)" @onclick="() => AssignWorkingCoords(row, col)">@_value</button>
         }
         <br />
     }
 
-    <br />
     <div>
         @foreach (var num in Enumerable.Range(1, 9))
         {
             @if (@AnyLeftInBoard(num))
             {
 
-                <h1 style="color:black; display: inline;margin-right:5px;"> @num </h1>
+                <button style="outline: 2px solid; background-color: lightgray; margin: 10px; padding: 3px; color:black; display: inline;margin-right:5px;" @onclick="() => AssignToSquare(num)"> @num </button>
             }
             else
             {
-                <h1 style="color: gainsboro; display: inline; margin-right: 5px; "> @num </h1>
+                <button style="outline: 2px solid; background-color: lightgray; margin: 10px; padding: 3px; color: gainsboro; display: inline; margin-right: 5px; " disabled> @num </button>
             }
         }
     </div>
@@ -56,13 +55,22 @@ Example Project
     private readonly int N = 9;
     private readonly int SRN = (int)Math.Sqrt(9);
     private int difficulty = 1;
+    private int? WorkingRow;
+    private int? WorkingColumn;
 
-    private int[,] CopyForRefresh = new int[9,9];
+    private int[,] CopyForRefresh = new int[9, 9];
 
     protected override void OnInitialized()
     {
         GenerateValidBoard();
 
+    }
+
+    private void RefreshCommonValues()
+    {
+        IsValid = String.Empty;
+        WorkingRow = null;
+        WorkingColumn = null;
     }
 
     private void GenerateValidBoard()
@@ -78,7 +86,7 @@ Example Project
 
         CopyForRefresh = (int[,])board.Clone();
 
-        IsValid = String.Empty;
+        RefreshCommonValues();
     }
 
     private void FillDiagonal()
@@ -255,16 +263,12 @@ Example Project
         return;
     }
 
-    private void ChangeBoard(int number, int i, int j)
-    {
-        board[i, j] = number;
-        return;
-    }
-
     private string GetStyle(int row, int column)
     {
         string border = "3px solid blue;";
         string ReturnString = "outline:solid black;width:40px;height:40px;text-align:right;";
+        if (row == WorkingRow && column == WorkingColumn)
+            ReturnString += "background-color: yellow;";
         if (board[row, column] == 0)
             ReturnString += "color: red;"; // starts showing the limitation of this
         if (row == 0 || row == 3 || row == 6)
@@ -291,7 +295,18 @@ Example Project
     private void Refresh()
     {
         board = (int[,])CopyForRefresh.Clone();
-        IsValid = string.Empty;
+        RefreshCommonValues();
+    }
+
+    private void AssignWorkingCoords(int row, int column)
+    {
+        WorkingRow = row;
+        WorkingColumn = column;
+    }
+
+    private void AssignToSquare(int value)
+    {
+        if (WorkingColumn != null && WorkingRow != null)
+            board[(int)WorkingRow, (int)WorkingColumn] = value;
     }
 }
-
