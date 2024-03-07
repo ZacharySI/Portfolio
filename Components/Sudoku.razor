@@ -17,21 +17,21 @@ Example Project
         }
         <br />
     }
-
-    <div>
-        @foreach (var num in Enumerable.Range(1, 9))
+    <br />
+<div>
+    @foreach (var num in Enumerable.Range(1, 9))
+    {
+        @if (@AnyLeftInBoard(num))
         {
-            @if (@AnyLeftInBoard(num))
-            {
-    
-                <button style="margin-left:15px;" @onclick="() => AssignToSquare(num)"><h1 style="color:black; display: inline;margin-right:5px;"> @num </h1></button>
-            }
-            else
-            {
-                <button style="margin-left:15px;" disabled><h1 style="color: gainsboro; display: inline; margin-right: 5px;"> @num </h1></button>
-            }
+
+            <button style="margin-left:15px;" @onclick="() => AssignToSquare(num)"><h1 style="color:black; display: inline;margin-right:5px;"> @num </h1></button>
         }
-    </div>
+        else
+        {
+            <button style="margin-left:15px;" disabled><h1 style="color: gainsboro; display: inline; margin-right: 5px;"> @num </h1></button>
+        }
+    }
+</div>
     <br />
     <button style="outline: 2px solid; background-color: lightgray; margin: 5px; padding: 3px; " @onclick="CheckBoard">Submit</button>
     <button style="outline: 2px solid; background-color: lightgray; margin: 5px; padding: 3px; " @onclick="GenerateValidBoard">Generate New</button>
