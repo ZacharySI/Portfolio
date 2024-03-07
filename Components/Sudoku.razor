@@ -39,11 +39,11 @@ Example Project
     <button style="outline: 2px solid; background-color: lightgray; margin: 5px; padding: 3px; " @onclick="Refresh">Refresh</button>
     <div>
         <input type="radio" checked="@(difficulty == 0)" name="difficulty" @onchange="@(() => difficulty = 0)" />
-        <label>easy</label><br>
+        <label @onclick="@(() => difficulty = 0)">easy</label><br>
         <input type="radio" checked="@(difficulty == 1)" name="difficulty" @onchange="@(() => difficulty = 1)" />
-        <label>medium</label><br>
+        <label @onclick="@(() => difficulty = 1)">medium</label><br>
         <input type="radio" checked="@(difficulty == 2)" name="difficulty" @onchange="@(() => difficulty = 2)" />
-        <label>hard</label><br>
+        <label @onclick="@(() => difficulty = 2)">hard</label><br>
     </div>
     <br />
     <p>@IsValid</p>
